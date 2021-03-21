@@ -7,6 +7,12 @@ Vue Router
 Vuex
 Axios
 ```
+## Главная страница сайта
+![Banner image](screenshots/main_page.png)
+## Список фильмов из подборки
+![Banner image](screenshots/films.png)
+## Понравившиеся фильмы
+![Banner image](screenshots/liked_films.png)
 ## Возможности
 Данный проект находится на стадии разработки
 
