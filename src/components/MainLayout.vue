@@ -8,8 +8,8 @@
         </router-link>
 
         <div class="input-wrapper">
-          <input type="text" class="input-field" placeholder="Введите название фильма" maxlength="45">
-          <button class="search"><i class="fas fa-search search-icon"></i></button>
+          <input type="text" v-model="keyWord" class="input-field" placeholder="Введите название фильма" maxlength="45">
+          <button class="search" v-on:click="searchFilm"><i class="fas fa-search search-icon"></i></button>
         </div>
 
         <div class="button-wrapper">
@@ -21,12 +21,11 @@
       </div>
     </div>
 
-<!--    Здесь будет router-view, который будет загружать нужную страницу-->
     <div class="container page-container" ref="page">
       <router-view></router-view>
       <div class="page-up" ref="btn_up">
         <button class="btn-up"
-                v-on:click="pageUp">
+                v-on:click.prevent="pageUp">
           <i class="fas fa-chevron-up up-icon"></i>
         </button>
         <span class="up">наверх</span>
@@ -38,9 +37,18 @@
 <script>
 export default {
   name: "MainLayout",
+  data(){
+    return{
+      keyWord: '',
+    }
+  },
   methods: {
     pageUp(){
       document.documentElement.scrollTop = 0;
+    },
+     searchFilm(){
+       this.$router.push({name: 'Search', params: {id: this.keyWord}})
+       this.keyWord = ''
     }
   },
   mounted() {
@@ -69,6 +77,7 @@ export default {
 </script>
 
 <style scoped>
+
 .router-link{
   text-decoration: none;
 }

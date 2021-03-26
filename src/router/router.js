@@ -10,21 +10,27 @@ const routes = [
         component: () => import('../components/Home.vue')
     },
     {
-        path: '/film/:id',
-        name: 'Film',
-        props: true,
-        component: () => import('../components/Film.vue')
-    },
-    {
         path: '/like',
         name: 'Like',
         component: () => import('../components/Like.vue')
     },
     {
-        path: '/filmcard',
+        path: '/filmDetail/:id',
         name: 'FilmCard',
         props: true,
         component: () => import('../components/FilmCard.vue')
+    },
+    {
+        path: '/collection/:id',
+        name: 'Collection',
+        props: true,
+        component: () => import('../components/Collection.vue')
+    },
+    {
+        path: '/search/:id',
+        name: 'Search',
+        props: true,
+        component: () => import('../components/Search.vue')
     },
 
 ]

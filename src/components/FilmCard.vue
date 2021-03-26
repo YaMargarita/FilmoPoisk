@@ -1,58 +1,62 @@
 <template>
-  <div class="filmCard">
-    <img :src="film.data.posterUrl" alt="" class="img">
-    <div class="film-info">
-      <div class="film-title-wrapper">
-        <h2 class="film-title">{{ film.data.nameRu }}</h2>
-        <h2 class="film-title">{{ film.data.nameEn }}</h2>
-        <div class="like-btn" v-on:click="likeFilm(film.data.filmId)">
-          <button class="btn">
-            <i class="fas fa-heart btn-icon" ref='like' :class="{activeLike: film.isLike}"></i>
-          </button>
-          <span class="like" ref="likeText" v-if="film.isLike">в избранном</span>
-          <span class="like" ref="likeText" v-if="!film.isLike">в избранное</span>
+  <div>
+    <div v-if="load">Загрузка</div>
+
+    <div v-else class="filmCard">
+      <img :src="film.data.posterUrl" alt="" class="img">
+      <div class="film-info">
+        <div class="film-title-wrapper">
+          <h2 class="film-title">{{ film.data.nameRu }}</h2>
+          <h2 class="film-title">{{ film.data.nameEn }}</h2>
+          <div class="like-btn" v-on:click="likeFilm(film.data.filmId)">
+            <button class="btn">
+              <i class="fas fa-heart btn-icon" ref='like' :class="{activeLike: film.isLike}"></i>
+            </button>
+            <span class="like" ref="likeText" v-if="film.isLike">в избранном</span>
+            <span class="like" ref="likeText" v-if="!film.isLike">в избранное</span>
+          </div>
         </div>
-      </div>
-      <ul class="film-parameters">
-        <li class="parameter" v-on:click="changeParameter('desc')" :class="{active: type ==='desc'}">Описание</li>
-        <li class="parameter" v-on:click="changeParameter('info')" :class="{active: type ==='info'}">Информация</li>
-        <li class="parameter" v-on:click="changeParameter('facts')" :class="{active: type ==='facts'}">Интересные факты</li>
-      </ul>
-      <div class="information">
-        <div class="description" v-if="type === 'desc'">
-          {{ film.data.description }}
-        </div>
-        <div class="info" v-if="type === 'info'">
-          <p class="info-item">Длина фильма - {{ film.data.filmLength}}</p>
-          <p class="info-item">Премьера в России - {{ film.data.premiereRu}}</p>
-          <p class="info-item">Премьера в мире - {{ film.data.premiereWorld}}</p>
-          <p class="info-item">Возрастное ограничение - {{ film.data.ratingAgeLimits}}+</p>
-          <p class="info-item">Слоган - "{{ film.data.slogan}}"</p>
-        </div>
-        <div class="facts" v-if="film.data.facts.length > 0 && type === 'facts'">
-          {{ film.data.facts[factsIndex] }}
-          <button class="more" v-on:click="moreFacts(film.data.facts.length)"><span class="moreText">еще</span></button>
+        <ul class="film-parameters">
+          <li class="parameter" v-on:click="changeParameter('desc')" :class="{active: type ==='desc'}">Описание</li>
+          <li class="parameter" v-on:click="changeParameter('info')" :class="{active: type ==='info'}">Информация</li>
+          <li class="parameter" v-on:click="changeParameter('facts')" :class="{active: type ==='facts'}">Интересные факты</li>
+        </ul>
+        <div class="information">
+          <div class="description" v-if="type === 'desc'">
+            {{ film.data.description }}
+          </div>
+          <div class="info" v-if="type === 'info'">
+            <p class="info-item">Длина фильма - {{ film.data.filmLength}}</p>
+            <p class="info-item">Премьера в России - {{ film.data.premiereRu}}</p>
+            <p class="info-item">Премьера в мире - {{ film.data.premiereWorld}}</p>
+            <p class="info-item">Возрастное ограничение - {{ film.data.ratingAgeLimits}}+</p>
+            <p class="info-item">Слоган - "{{ film.data.slogan}}"</p>
+          </div>
+          <div class="facts" v-if="film.data.facts && film.data.facts.length > 0 && type === 'facts'">
+            {{ film.data.facts[factsIndex] }}
+            <button class="more" v-on:click="moreFacts(film.data.facts.length)"><span class="moreText">еще</span></button>
+          </div>
+          <div v-else-if="type === 'facts'" class="facts">
+            Информация отсутствует
+          </div>
         </div>
       </div>
     </div>
   </div>
+
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "FilmCard",
   data(){
     return{
       factsIndex: 0,
-      type: 'desc'
-    }
-  },
-  props: {
-    film : {
-      type: Object,
-      default(){
-        return {}
-      }
+      type: 'desc',
+      film: {},
+      load: false,
     }
   },
   methods: {
@@ -68,6 +72,22 @@ export default {
       this.film.isLike = !this.film.isLike;
       this.$store.dispatch('LIKE_FILMS', id)
     }
+  },
+  async created() {
+    this.load = true;
+    let id = this.$router.currentRoute.params.id;
+    await axios.get(`https://kinopoiskapiunofficial.tech/api/v2.1/films/${id}`, {
+      headers: {
+        'X-API-KEY': `36619dd6-6c94-4295-a0d1-7088c48d7715`
+      }
+    }).then((res) => {
+      this.film =  res.data;
+      console.log(this.film)
+      this.load = false
+    }).catch(error => {
+      console.log(error.response)
+    });
+
   },
 }
 </script>

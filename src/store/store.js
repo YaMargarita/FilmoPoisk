@@ -41,6 +41,7 @@ export const store = new Vuex.Store({
         ],
         currentFilm: [],
         LIKED_FILMS: [],
+        film: {},
     },
 
     actions: {
@@ -49,25 +50,28 @@ export const store = new Vuex.Store({
 
             state.currentFilm = [];
 
-            state.LIST[index]["id"].forEach(id => {
-                 axios.get(`https://kinopoiskapiunofficial.tech/api/v2.1/films/${id}`, {
+            const promises  = await state.LIST[index]["id"].map(async (id) => {
+                await axios.get(`https://kinopoiskapiunofficial.tech/api/v2.1/films/${id}`, {
                     headers: {
                         'X-API-KEY': `36619dd6-6c94-4295-a0d1-7088c48d7715`
                     }
                 }).then((res) => {
+                    let date = res.data;
                     // проверяю, есть ли такой фильм в понравившихся
-                     let date = res.data;
-                     date.isLike = false
-                     state.LIKED_FILMS.forEach(item => {
-                         if(item.data.filmId === date.data.filmId){
-                             date.isLike = true
-                             return ''
-                         }
-                     })
-                   state.currentFilm.push(date)
+                    date.isLike = false
+                    state.LIKED_FILMS.forEach(item => {
+                        if(item.data.filmId === date.data.filmId){
+                            date.isLike = true
+                            return ''
+                        }
+                    })
+                    state.currentFilm.push(date)
                 }).catch(error => {
                     console.log(error.response)
                 });
+            })
+            await Promise.all(promises).then(values => {
+                return values
             })
             return {list: state.currentFilm, title: state.LIST[index].title}
         },
@@ -88,6 +92,40 @@ export const store = new Vuex.Store({
             }).catch(error => {
                 console.log(error.response)
             });
+        },
+        async SEARCH_FILM({state}, keyword){
+            state.currentFilm = [];
+            let arr = await axios.get(`https://kinopoiskapiunofficial.tech/api/v2.1/films/search-by-keyword?keyword=${keyword}`, {
+                headers: {
+                    'X-API-KEY': `36619dd6-6c94-4295-a0d1-7088c48d7715`
+                }
+            }).then((res) => {
+                return res.data.films;
+            }).catch(e => {
+                console.log(e.response)
+            })
+
+            let promises =  await arr.map(async item => {
+                let id = item.filmId;
+                await axios.get(`https://kinopoiskapiunofficial.tech/api/v2.1/films/${id}`, {
+                    headers: {
+                        'X-API-KEY': `36619dd6-6c94-4295-a0d1-7088c48d7715`
+                    }
+                }).then(result => {
+                    let data = result.data;
+                    //проверка,есть ли фильм в понравившихся
+                    let index = state.LIKED_FILMS.findIndex(elem => elem.data.filmId === data.data.filmId)
+                    data.isLike = index >= 0;
+                    state.currentFilm.push(data)
+                }).catch(e => {
+                    console.log(e.response)
+                })
+            })
+
+            await Promise.all(promises).then(res => {
+                return res;
+            })
+            return await state.currentFilm;
         },
         DELETE_FILM({state}, key){
             let index = state.LIKED_FILMS.findIndex(elem => elem.data.filmId === key);

@@ -24,28 +24,16 @@
 <script>
 export default {
   name: "Home",
-  data() {
-    return {
-      currentFilm: [],
-    }
-  },
   computed:{
     LIST(){
       return this.$store.state.LIST
     }
   },
   methods: {
-    async showFilms(key){
-      // получен ключ, теперь  отрендерить только фильмы с этим ключом
-      let filmList = await this.$store.dispatch('SHOW_FILMS', key);
-
-      await this.$router.push({name: 'Film', params: {id: key, showFilm: filmList.list, title: filmList.title}});
-
+    showFilms(key){
+      this.$router.push({name: 'Collection', params: {id: key}})
     }
   },
-  mounted() {
-
-  }
 }
 </script>
 

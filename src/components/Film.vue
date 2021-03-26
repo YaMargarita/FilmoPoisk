@@ -1,6 +1,5 @@
 <template>
   <div class="film">
-    <!--    Это страница для отображения подборки фильмов-->
     <div class="title">{{ title }}</div>
     <div class="film-item" v-for="(item, index) in showFilm" :key="item.data.filmId">
 
@@ -68,9 +67,6 @@ export default {
       }
     }
   },
-  mounted() {
-    console.log(this.showFilm)
-  },
   methods: {
     likeFilm(key, index){
 
@@ -86,7 +82,8 @@ export default {
       this.$store.dispatch('LIKE_FILMS', key)
     },
     showFilmCard(elem){
-      this.$router.push({name: 'FilmCard', params: {film: elem}});
+      this.$store.state.film = elem;
+      this.$router.push({name: 'FilmCard', params:{id: elem.data.filmId}});
     }
   }
 
